@@ -30,7 +30,8 @@ ones. `lab8.trace.Trace` does this; your own tracer is fine if it matches.
 from __future__ import annotations
 
 from lab8.db import connect
-from lab8.durability import issue_refund
+from lab8.durability import InjectedCrash, issue_refund
+from lab8.mock_llm import complete
 from lab8.schemas import Budget, RunResult, make_run_id
 from lab8.shapes.common import finish
 from lab8.tools import compute_compensation, get_claim_view, lookup_order, tool_cost
@@ -74,7 +75,12 @@ def run_claim(
                     status = "denied"
                     reason = quote["reason"]
                 else:
-                    outcome = issue_refund(conn, claim_id, proposal, crash_at=crash_at)
+                    try:
+                        outcome = issue_refund(conn, claim_id, proposal, crash_at=crash_at)
+                    except InjectedCrash:
+                        trace.add("crash", {"at": crash_at})
+                        trace.write()
+                        raise
                     if outcome["ok"]:
                         status = "resolved"
                         reason = None
@@ -82,6 +88,7 @@ def run_claim(
                         status = "failed" if outcome["conflict"] else "denied"
                         reason = outcome["reason"]
 
+        complete(budget, seed=seed, purpose="draft", prompt=f"status={status};proposal={proposal}")
         trace.add("decision", {"status": status, "proposal_amount": proposal, "reason": reason})
         return finish(
             conn,

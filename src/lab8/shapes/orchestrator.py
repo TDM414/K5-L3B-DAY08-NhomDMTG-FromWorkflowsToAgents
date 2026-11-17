@@ -23,6 +23,7 @@ import sqlite3
 from lab8.db import connect
 from lab8.durability import InjectedCrash, issue_refund
 from lab8.handoff import make_handoff
+from lab8.mock_llm import complete
 from lab8.runtime import run_readonly_investigators
 from lab8.schemas import Budget, RunResult, make_run_id
 from lab8.shapes.common import finish, safe_dump
@@ -66,6 +67,7 @@ def _run(conn: sqlite3.Connection, claim_id: str, *, seed: int, crash_at: str | 
         )
 
     if not claim.get("order_id"):
+        complete(budget, seed=seed, purpose="draft", prompt="needs_info")
         trace.add("decision", {"status": "needs_info"})
         return finish(
             conn,
@@ -79,6 +81,7 @@ def _run(conn: sqlite3.Connection, claim_id: str, *, seed: int, crash_at: str | 
             error_reason="missing_order_id",
         )
 
+    complete(budget, seed=seed, purpose="plan", prompt=f"claim={claim_id};order={claim['order_id']}")
     handoff = make_handoff(
         request_id=f"REQ-{claim_id}",
         claim_id=claim_id,
@@ -100,6 +103,7 @@ def _run(conn: sqlite3.Connection, claim_id: str, *, seed: int, crash_at: str | 
     )
 
     if not order_view.get("visible"):
+        complete(budget, seed=seed, purpose="draft", prompt="escalated")
         trace.add("decision", {"status": "escalated", "reason": order_view.get("reason")})
         return finish(
             conn,
@@ -116,9 +120,11 @@ def _run(conn: sqlite3.Connection, claim_id: str, *, seed: int, crash_at: str | 
     quote_payload = investigated["tools"].get("compute_compensation")
     if quote_payload is None:
         order = (order_view.get("order") if isinstance(order_view, dict) else None) or {}
+        budget.add_tool(tool_cost())
         quote_payload = compute_compensation(conn, order)
     proposal = int(quote_payload["amount_vnd"])
     trace.add("quote", quote_payload)
+    complete(budget, seed=seed, purpose="draft", prompt=f"proposal={proposal}")
 
     if proposal <= 0:
         trace.add("decision", {"status": "denied", "reason": quote_payload.get("reason")})
