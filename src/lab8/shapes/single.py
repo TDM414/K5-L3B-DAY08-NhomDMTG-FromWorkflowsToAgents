@@ -6,7 +6,7 @@ import sqlite3
 from typing import Any
 
 from lab8.db import connect
-from lab8.durability import issue_refund
+from lab8.durability import InjectedCrash, issue_refund
 from lab8.mock_llm import complete
 from lab8.runtime import run_react
 from lab8.schemas import Budget, RunResult, make_run_id
@@ -128,6 +128,7 @@ def _run(
         observation={"claim": claim},
         decide=decide,
         max_steps=8,
+        worker=True,
     )
     final = react_result["final"]
     status = final["status"]
@@ -137,7 +138,12 @@ def _run(
     if status == "resolved" and proposal > 0:
         # The host owns approval checks, order cap, idempotency, and the write.
         # Pass the full quote so per-order history is applied exactly once.
-        outcome = issue_refund(conn, claim_id, proposal, crash_at=crash_at)
+        try:
+            outcome = issue_refund(conn, claim_id, proposal, crash_at=crash_at)
+        except InjectedCrash:
+            trace.add("crash", {"at": crash_at})
+            trace.write()
+            raise
         trace.add(
             "host_result",
             {"ok": bool(outcome["ok"]), "reason": outcome["reason"], "conflict": bool(outcome["conflict"])},
