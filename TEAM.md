@@ -46,58 +46,18 @@ report/team/MSSV_HoTen.md
 
 Ví dụ: `report/team/20241234_NguyenVanAn.md`.
 
-## 2A202603998_TranDuyManh
+Sao chép mục dưới đây cho từng thành viên.
+
+## MSSV_HoTen
 
 ### Phần việc phụ trách
 
-- **Task 4 — Ledger safety + đánh giá:** Kiểm thử idempotency, approval, giới hạn hoàn theo đơn và crash (T11/T12, crash suite 20/20); hoàn thiện kiểm tra crash trace flush và ranh giới bảo mật cho 3 shape; chạy benchmark và crash test tạo `src/reports/benchmark.json` và `src/reports/crash.json`; tổng hợp `decision_adr.md`, `research_card.md`, `group_report.md` và `TEAM.md`.
+-
 
 ### Đóng góp cụ thể
 
-- Commit `1f4bca2`: gia cố xử lý crash trace flush + worker guard + budget ở 3 shape, tách test workflow khỏi `test_public_matrix.py`, bổ sung bộ kiểm tra chuẩn nộp bài `src/tests/test_submission_standards.py` và sinh báo cáo `src/reports/crash.json` (`20/20`), `src/reports/benchmark.json`.
+-
 
 ### Bằng chứng
 
-- `src/reports/crash.json` (`20/20`), `src/reports/benchmark.json`, `src/tests/test_submission_standards.py`, [2A202603998_TranDuyManh.md](report/team/2A202603998_TranDuyManh.md).
-
-## 2A202603955_NguyenXuanDuong
-
-### Phần việc phụ trách
-
-- **Task 3 — Orchestrator + handoff:** Hoàn thiện `src/lab8/shapes/orchestrator.py` (dùng handoff allowlist chỉ gồm công cụ đọc, investigator tách biệt và flush trace khi gặp crash).
-
-### Đóng góp cụ thể
-
-- Commit `9c628ba`: cài đặt `src/lab8/shapes/orchestrator.py` đạt 62/62 test student và tạo khung báo cáo cá nhân; phối hợp bổ sung `src/tests/test_orchestrator.py` kiểm tra handoff sanitize và ngân sách model.
-
-### Bằng chứng
-
-- Commit `9c628ba`, `src/tests/test_orchestrator.py`, [2A202603955_NguyenXuanDuong.md](report/team/2A202603955_NguyenXuanDuong.md).
-
-## 2A202603967_TranThiHongGam
-
-### Phần việc phụ trách
-
-- **Task 1 — Workflow + tích hợp:** Hoàn thiện `src/lab8/shapes/workflow.py` theo luồng Python xác định, giữ cổng host xanh và phối hợp tích hợp 3 kiến trúc.
-
-### Đóng góp cụ thể
-
-- Commit `03ce5b8`: cài đặt `src/lab8/shapes/workflow.py` và viết các bài test hồi quy cho `workflow` (sau tách gọn sang `src/tests/test_workflow.py`) kiểm tra `unknown_claim`, chống ghi đè bởi ticket và các điểm crash.
-
-### Bằng chứng
-
-- Commit `03ce5b8`, `src/tests/test_workflow.py`, [2A202603967_TranThiHongGam.md](report/team/2A202603967_TranThiHongGam.md).
-
-## 2A202603953_DinhLeThinh
-
-### Phần việc phụ trách
-
-- **Task 2 — Single agent:** Hoàn thiện `src/lab8/shapes/single.py` bằng vòng lặp ReAct tối đa 8 bước với công cụ chỉ đọc và gọi host ghi hoàn tiền ngoài vòng lặp.
-
-### Đóng góp cụ thể
-
-- Commit `b2ed187`: cài đặt `src/lab8/shapes/single.py` và viết bộ test `src/tests/test_single_agent.py` kiểm tra công cụ chỉ đọc, bảo vệ trace không rò `ticket` hay `CANARY_SECRET_*`.
-
-### Bằng chứng
-
-- Commit `b2ed187`, `src/tests/test_single_agent.py`, [2A202603953_DinhLeThinh.md](report/team/2A202603953_DinhLeThinh.md).
+-
